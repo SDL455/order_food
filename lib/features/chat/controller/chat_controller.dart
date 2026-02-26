@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../core/services/firebase_service.dart';
 import '../../../data/models/chat_model.dart';
 import '../../../data/models/message_model.dart';
+import '../../../data/models/shop_model.dart';
 import '../../../data/repositories/chat_repository.dart';
 import '../../../data/repositories/shop_repository.dart';
 
@@ -16,6 +17,11 @@ class ChatController extends GetxController {
   final messageText = ''.obs;
   final isLoading = true.obs;
 
+  /// Shops for customer to search and start chat with admin.
+  final shops = <ShopModel>[].obs;
+  final isShopsLoading = false.obs;
+  final searchQuery = ''.obs;
+
   /// Currently selected chat.
   final Rxn<ChatModel> activeChat = Rxn<ChatModel>();
 
@@ -24,25 +30,65 @@ class ChatController extends GetxController {
 
   String get shopIdFromArgs => Get.arguments as String? ?? '';
 
+  /// Shops filtered by search (for customer).
+  List<ShopModel> get filteredShops {
+    final q = searchQuery.value.trim().toLowerCase();
+    if (q.isEmpty) return shops;
+    return shops.where((s) => s.name.toLowerCase().contains(q)).toList();
+  }
+
   @override
   void onInit() {
     super.onInit();
     _loadChats();
+    if (!isAdmin) _loadShops();
+  }
+
+  Future<void> _loadShops() async {
+    isShopsLoading.value = true;
+    try {
+      shops.value = await _shopRepo.getShops();
+    } finally {
+      isShopsLoading.value = false;
+    }
   }
 
   void _loadChats() {
     isLoading.value = true;
-    if (isAdmin) {
-      _chatRepo.streamShopChats(shopIdFromArgs).listen((list) {
-        chats.value = list;
-        isLoading.value = false;
-      });
-    } else {
-      _chatRepo.streamCustomerChats(FirebaseService.uid).listen((list) {
-        chats.value = list;
-        isLoading.value = false;
-      });
+
+    // Customer ຕ້ອງເຂົ້າສູ່ລະບົບກ່ອນ
+    if (!isAdmin && FirebaseService.uid.isEmpty) {
+      isLoading.value = false;
+      chats.clear();
+      return;
     }
+
+    // Admin ຕ້ອງມີ shopId
+    if (isAdmin && shopIdFromArgs.isEmpty) {
+      isLoading.value = false;
+      chats.clear();
+      return;
+    }
+
+    final stream = isAdmin
+        ? _chatRepo.streamShopChats(shopIdFromArgs)
+        : _chatRepo.streamCustomerChats(FirebaseService.uid);
+
+    stream.listen(
+      (list) {
+        chats.value = list;
+        isLoading.value = false;
+      },
+      onError: (e, st) {
+        isLoading.value = false;
+        chats.clear();
+        Get.snackbar(
+          'ບໍ່ສາມາດໂຫຼດຂໍ້ມູນໄດ້',
+          'ກະລຸນາກວດສອບການເຊື່ອມຕໍ່ ຫຼື ລອງໃໝ່ພາຍຫຼັງ',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      },
+    );
   }
 
   /// Open a chat and start listening to messages.
