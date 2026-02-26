@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/services/firebase_service.dart';
 import '../controller/chat_controller.dart';
+import '../widgets/chat_input_bar.dart';
+import '../widgets/chat_message_bubble.dart';
 
 /// Chat detail screen — real-time message list with input.
 class ChatDetailScreen extends GetView<ChatController> {
@@ -17,7 +19,6 @@ class ChatDetailScreen extends GetView<ChatController> {
       appBar: AppBar(title: const Text('Chat')),
       body: Column(
         children: [
-          // Messages
           Expanded(
             child: Obx(() {
               if (controller.messages.isEmpty) {
@@ -35,103 +36,24 @@ class ChatDetailScreen extends GetView<ChatController> {
                 itemBuilder: (_, i) {
                   final msg = controller.messages[i];
                   final isMe = msg.fromUid == FirebaseService.uid;
-
-                  return Align(
-                    alignment: isMe
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 10,
-                      ),
-                      constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width * 0.7,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isMe ? AppTheme.primary : Colors.grey.shade100,
-                        borderRadius: BorderRadius.only(
-                          topLeft: const Radius.circular(16),
-                          topRight: const Radius.circular(16),
-                          bottomLeft: Radius.circular(isMe ? 16 : 4),
-                          bottomRight: Radius.circular(isMe ? 4 : 16),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            msg.text,
-                            style: TextStyle(
-                              color: isMe ? Colors.white : AppTheme.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${msg.createdAt.hour}:${msg.createdAt.minute.toString().padLeft(2, '0')}',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: isMe
-                                  ? Colors.white70
-                                  : AppTheme.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  final time =
+                      '${msg.createdAt.hour}:${msg.createdAt.minute.toString().padLeft(2, '0')}';
+                  return ChatMessageBubble(
+                    text: msg.text,
+                    time: time,
+                    isMe: isMe,
                   );
                 },
               );
             }),
           ),
-
-          // Input bar
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 8,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: SafeArea(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: textCtrl,
-                      onChanged: (v) => controller.messageText.value = v,
-                      decoration: const InputDecoration(
-                        hintText: 'Type a message...',
-                        border: InputBorder.none,
-                        fillColor: Colors.transparent,
-                        filled: false,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  CircleAvatar(
-                    backgroundColor: AppTheme.primary,
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.send,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                      onPressed: () {
-                        controller.sendMessage();
-                        textCtrl.clear();
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          ChatInputBar(
+            textController: textCtrl,
+            onChanged: (v) => controller.messageText.value = v,
+            onSend: () {
+              controller.sendMessage();
+              textCtrl.clear();
+            },
           ),
         ],
       ),

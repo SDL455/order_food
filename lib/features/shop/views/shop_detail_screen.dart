@@ -6,6 +6,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../routes/app_routes.dart';
 import '../controller/shop_controller.dart';
+import '../widgets/category_chip.dart';
+import '../widgets/product_grid_card.dart';
 
 class ShopDetailScreen extends GetView<ShopController> {
   const ShopDetailScreen({super.key});
@@ -163,13 +165,13 @@ class ShopDetailScreen extends GetView<ShopController> {
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     children: [
-                      _CategoryChip(
+                      CategoryChip(
                         label: 'All',
                         isSelected: controller.selectedCategory.value.isEmpty,
                         onTap: () => controller.selectedCategory.value = '',
                       ),
                       ...controller.categories.map(
-                        (c) => _CategoryChip(
+                        (c) => CategoryChip(
                           label: c,
                           isSelected: controller.selectedCategory.value == c,
                           onTap: () => controller.selectedCategory.value = c,
@@ -191,7 +193,8 @@ class ShopDetailScreen extends GetView<ShopController> {
                 ),
                 delegate: SliverChildBuilderDelegate((_, i) {
                   final product = controller.filteredProducts[i];
-                  return GestureDetector(
+                  return ProductGridCard(
+                    product: product,
                     onTap: () => Get.toNamed(
                       AppRoutes.productDetail,
                       arguments: {
@@ -199,119 +202,7 @@ class ShopDetailScreen extends GetView<ShopController> {
                         'productId': product.id,
                       },
                     ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: AppTheme.cardShadow,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                            child: Stack(
-                              children: [
-                                product.imageUrl.isNotEmpty
-                                    ? CachedNetworkImage(
-                                        imageUrl: product.imageUrl,
-                                        height: 120,
-                                        width: double.infinity,
-                                        fit: BoxFit.cover,
-                                      )
-                                    : Container(
-                                        height: 120,
-                                        color: AppTheme.primary.withValues(alpha: 0.1),
-                                        child: Center(
-                                          child: Icon(
-                                            Icons.fastfood,
-                                            size: 40,
-                                            color: AppTheme.primary.withValues(alpha: 0.5),
-                                          ),
-                                        ),
-                                      ),
-                                Positioned(
-                                  top: 8,
-                                  right: 8,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withValues(alpha: 0.1),
-                                          blurRadius: 4,
-                                        ),
-                                      ],
-                                    ),
-                                    child: Icon(
-                                      Icons.add,
-                                      size: 16,
-                                      color: AppTheme.primary,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  product.name,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                    height: 1.2,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                if (product.ratingCount > 0)
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.star,
-                                        size: 14,
-                                        color: Colors.amber.shade600,
-                                      ),
-                                      const SizedBox(width: 2),
-                                      Text(
-                                        product.avgRating.toStringAsFixed(1),
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      Text(
-                                        ' (${product.ratingCount})',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: AppTheme.textSecondary,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  '\$${product.price.toStringAsFixed(2)}',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppTheme.primary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ).animate(delay: (i * 50).ms).fadeIn().scale(begin: const Offset(0.95, 0.95)),
-                  );
+                  ).animate(delay: (i * 50).ms).fadeIn().scale(begin: const Offset(0.95, 0.95));
                 }, childCount: controller.filteredProducts.length),
               ),
             ),
@@ -339,7 +230,7 @@ class ShopDetailScreen extends GetView<ShopController> {
               childAspectRatio: 0.68,
             ),
             delegate: SliverChildBuilderDelegate(
-              (_, __) => Container(
+              (context, index) => Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
@@ -350,57 +241,6 @@ class ShopDetailScreen extends GetView<ShopController> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _CategoryChip extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _CategoryChip({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        margin: const EdgeInsets.only(right: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primary : Colors.white,
-          borderRadius: BorderRadius.circular(25),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppTheme.primary.withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : AppTheme.textPrimary,
-            fontWeight: FontWeight.w600,
-            fontSize: 13,
-          ),
-        ),
-      ),
     );
   }
 }

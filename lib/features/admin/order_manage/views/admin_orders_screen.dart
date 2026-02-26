@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/widgets/status_chip.dart';
 import '../controller/admin_order_controller.dart';
 
 /// Admin orders screen — view and update order statuses.
@@ -49,7 +50,6 @@ class AdminOrdersScreen extends GetView<AdminOrderController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header
                   Row(
                     children: [
                       Expanded(
@@ -61,12 +61,10 @@ class AdminOrdersScreen extends GetView<AdminOrderController> {
                           ),
                         ),
                       ),
-                      _buildStatusChip(order.status),
+                      StatusChip(status: order.status),
                     ],
                   ),
                   const SizedBox(height: 8),
-
-                  // Items
                   ...order.items.map(
                     (item) => Text(
                       '• ${item.name} x${item.qty}',
@@ -74,8 +72,6 @@ class AdminOrdersScreen extends GetView<AdminOrderController> {
                     ),
                   ),
                   const SizedBox(height: 8),
-
-                  // Address
                   Row(
                     children: [
                       const Icon(
@@ -97,7 +93,6 @@ class AdminOrdersScreen extends GetView<AdminOrderController> {
                       ),
                     ],
                   ),
-
                   if (order.note.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
@@ -109,10 +104,7 @@ class AdminOrdersScreen extends GetView<AdminOrderController> {
                       ),
                     ),
                   ],
-
                   const Divider(height: 20),
-
-                  // Total + Actions
                   Row(
                     children: [
                       Text(
@@ -123,7 +115,6 @@ class AdminOrdersScreen extends GetView<AdminOrderController> {
                         ),
                       ),
                       const Spacer(),
-                      // Cancel button
                       if (order.status != AppConstants.statusDone &&
                           order.status != AppConstants.statusCanceled)
                         TextButton(
@@ -136,7 +127,6 @@ class AdminOrdersScreen extends GetView<AdminOrderController> {
                             style: TextStyle(color: AppTheme.error),
                           ),
                         ),
-                      // Next status button
                       if (nextStatus != null)
                         ElevatedButton(
                           onPressed: () =>
@@ -157,47 +147,6 @@ class AdminOrdersScreen extends GetView<AdminOrderController> {
           },
         );
       }),
-    );
-  }
-
-  Widget _buildStatusChip(String status) {
-    Color color;
-    switch (status) {
-      case AppConstants.statusPending:
-        color = Colors.orange;
-        break;
-      case AppConstants.statusAccepted:
-        color = Colors.blue;
-        break;
-      case AppConstants.statusCooking:
-        color = Colors.deepOrange;
-        break;
-      case AppConstants.statusDelivering:
-        color = Colors.indigo;
-        break;
-      case AppConstants.statusDone:
-        color = Colors.green;
-        break;
-      case AppConstants.statusCanceled:
-        color = Colors.red;
-        break;
-      default:
-        color = Colors.grey;
-    }
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        status.toUpperCase(),
-        style: TextStyle(
-          color: color,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
     );
   }
 

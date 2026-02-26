@@ -1,10 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'dart:io';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/loading_button.dart';
 import '../controller/admin_product_controller.dart';
 
 /// Admin product form screen — add or edit a product.
@@ -22,7 +24,6 @@ class AdminProductFormScreen extends GetView<AdminProductController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Image picker
             Obx(
               () => GestureDetector(
                 onTap: _pickImage,
@@ -61,8 +62,6 @@ class AdminProductFormScreen extends GetView<AdminProductController> {
               ),
             ),
             const SizedBox(height: 20),
-
-            // Name
             TextField(
               controller: TextEditingController(text: controller.name.value),
               onChanged: (v) => controller.name.value = v,
@@ -72,8 +71,6 @@ class AdminProductFormScreen extends GetView<AdminProductController> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Price
             TextField(
               controller: TextEditingController(
                 text: controller.price.value > 0
@@ -89,8 +86,6 @@ class AdminProductFormScreen extends GetView<AdminProductController> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Category
             TextField(
               controller: TextEditingController(
                 text: controller.category.value,
@@ -102,8 +97,6 @@ class AdminProductFormScreen extends GetView<AdminProductController> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Description
             TextField(
               controller: TextEditingController(text: controller.desc.value),
               onChanged: (v) => controller.desc.value = v,
@@ -117,38 +110,21 @@ class AdminProductFormScreen extends GetView<AdminProductController> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Active toggle
             Obx(
               () => SwitchListTile(
                 title: const Text('Active'),
                 subtitle: const Text('Product is visible to customers'),
                 value: controller.isActive.value,
                 onChanged: (v) => controller.isActive.value = v,
-                activeColor: AppTheme.primary,
+                activeThumbColor: AppTheme.primary,
               ),
             ),
             const SizedBox(height: 24),
-
-            // Save button
             Obx(
-              () => SizedBox(
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: controller.isSaving.value
-                      ? null
-                      : controller.saveProduct,
-                  child: controller.isSaving.value
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : Text(isEditing ? 'Update Product' : 'Add Product'),
-                ),
+              () => LoadingButton(
+                label: isEditing ? 'Update Product' : 'Add Product',
+                isLoading: controller.isSaving.value,
+                onPressed: controller.saveProduct,
               ),
             ),
           ],

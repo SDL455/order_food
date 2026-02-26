@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/utils/app_logger.dart';
@@ -11,11 +12,18 @@ class HomeController extends GetxController {
   final shops = <ShopModel>[].obs;
   final isLoading = true.obs;
   final searchQuery = ''.obs;
+  final searchController = TextEditingController();
 
   @override
   void onInit() {
     super.onInit();
     fetchShops();
+  }
+
+  @override
+  void onClose() {
+    searchController.dispose();
+    super.onClose();
   }
 
   Future<void> fetchShops() async {

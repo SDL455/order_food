@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/loading_button.dart';
 import '../controller/profile_controller.dart';
+import '../widgets/profile_avatar.dart';
+import '../widgets/profile_text_field.dart';
+import '../widgets/settings_menu_item.dart';
 
 class ProfileScreen extends GetView<ProfileController> {
   const ProfileScreen({super.key});
@@ -35,55 +38,9 @@ class ProfileScreen extends GetView<ProfileController> {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              GestureDetector(
+              ProfileAvatar(
+                photoUrl: controller.photoUrl.value.isNotEmpty ? controller.photoUrl.value : null,
                 onTap: _pickPhoto,
-                child: Stack(
-                  children: [
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppTheme.primary.withValues(alpha: 0.1),
-                        border: Border.all(
-                          color: AppTheme.primary,
-                          width: 3,
-                        ),
-                      ),
-                      child: controller.photoUrl.value.isNotEmpty
-                          ? ClipOval(
-                              child: CachedNetworkImage(
-                                imageUrl: controller.photoUrl.value,
-                                fit: BoxFit.cover,
-                                width: 120,
-                                height: 120,
-                              ),
-                            )
-                          : const Icon(
-                              Icons.person,
-                              size: 56,
-                              color: AppTheme.primary,
-                            ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primary,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 3),
-                        ),
-                        child: const Icon(
-                          Icons.camera_alt,
-                          size: 18,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ).animate().scale(duration: 400.ms, curve: Curves.elasticOut),
               const SizedBox(height: 16),
               Text(
@@ -117,14 +74,14 @@ class ProfileScreen extends GetView<ProfileController> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    _buildTextField(
+                    ProfileTextField(
                       label: 'Display Name',
                       value: controller.displayName.value,
                       icon: Icons.person_outline,
                       onChanged: (v) => controller.displayName.value = v,
                     ),
                     const SizedBox(height: 16),
-                    _buildTextField(
+                    ProfileTextField(
                       label: 'Phone Number',
                       value: controller.phone.value,
                       icon: Icons.phone_outlined,
@@ -133,24 +90,10 @@ class ProfileScreen extends GetView<ProfileController> {
                     ),
                     const SizedBox(height: 24),
                     Obx(
-                      () => SizedBox(
-                        width: double.infinity,
-                        height: 52,
-                        child: ElevatedButton(
-                          onPressed: controller.isSaving.value
-                              ? null
-                              : controller.saveProfile,
-                          child: controller.isSaving.value
-                              ? const SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Text('Save Changes'),
-                        ),
+                      () => LoadingButton(
+                        label: 'Save Changes',
+                        isLoading: controller.isSaving.value,
+                        onPressed: controller.saveProfile,
                       ),
                     ),
                   ],
@@ -177,22 +120,22 @@ class ProfileScreen extends GetView<ProfileController> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _buildMenuItem(
+                    SettingsMenuItem(
                       icon: Icons.notifications_outlined,
                       title: 'Notifications',
                       onTap: () {},
                     ),
-                    _buildMenuItem(
+                    SettingsMenuItem(
                       icon: Icons.security_outlined,
                       title: 'Privacy Policy',
                       onTap: () {},
                     ),
-                    _buildMenuItem(
+                    SettingsMenuItem(
                       icon: Icons.help_outline,
                       title: 'Help & Support',
                       onTap: () {},
                     ),
-                    _buildMenuItem(
+                    SettingsMenuItem(
                       icon: Icons.info_outline,
                       title: 'About Us',
                       onTap: () {},
@@ -205,103 +148,6 @@ class ProfileScreen extends GetView<ProfileController> {
           ),
         );
       }),
-    );
-  }
-
-  Widget _buildTextField({
-    required String label,
-    required String value,
-    required IconData icon,
-    required Function(String) onChanged,
-    TextInputType? keyboardType,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 13,
-            color: AppTheme.textSecondary,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.grey.shade50,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: TextField(
-            controller: TextEditingController(text: value),
-            onChanged: onChanged,
-            keyboardType: keyboardType,
-            decoration: InputDecoration(
-              prefixIcon: Icon(icon, color: AppTheme.textSecondary),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide.none,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMenuItem({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-    bool showDivider = true,
-  }) {
-    return Column(
-      children: [
-        InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(icon, color: AppTheme.primary, size: 20),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: AppTheme.textSecondary,
-                ),
-              ],
-            ),
-          ),
-        ),
-        if (showDivider) Divider(color: Colors.grey.shade200),
-      ],
     );
   }
 

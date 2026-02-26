@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/loading_button.dart';
 import '../../cart/controller/cart_controller.dart';
 import '../controller/checkout_controller.dart';
+import '../widgets/order_summary_card.dart';
 
 /// Checkout screen — address input, order summary, and place order.
 class CheckoutScreen extends GetView<CheckoutController> {
@@ -20,7 +21,6 @@ class CheckoutScreen extends GetView<CheckoutController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Delivery Address ──
             const Text(
               'Delivery Address',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
@@ -39,7 +39,6 @@ class CheckoutScreen extends GetView<CheckoutController> {
             ),
             const SizedBox(height: 24),
 
-            // ── Note ──
             const Text(
               'Note (optional)',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
@@ -54,7 +53,6 @@ class CheckoutScreen extends GetView<CheckoutController> {
             ),
             const SizedBox(height: 24),
 
-            // ── Order Summary ──
             const Text(
               'Order Summary',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
@@ -75,7 +73,6 @@ class CheckoutScreen extends GetView<CheckoutController> {
               child: Obx(
                 () => Column(
                   children: [
-                    // Items
                     ...cartCtrl.items.map(
                       (item) => Padding(
                         padding: const EdgeInsets.only(bottom: 8),
@@ -98,18 +95,18 @@ class CheckoutScreen extends GetView<CheckoutController> {
                       ),
                     ),
                     const Divider(),
-                    _summaryRow(
-                      'Subtotal',
-                      '\$${cartCtrl.subtotal.toStringAsFixed(2)}',
+                    SummaryRow(
+                      label: 'Subtotal',
+                      value: '\$${cartCtrl.subtotal.toStringAsFixed(2)}',
                     ),
-                    _summaryRow(
-                      'Delivery Fee',
-                      '\$${controller.deliveryFee.value.toStringAsFixed(2)}',
+                    SummaryRow(
+                      label: 'Delivery Fee',
+                      value: '\$${controller.deliveryFee.value.toStringAsFixed(2)}',
                     ),
                     const Divider(),
-                    _summaryRow(
-                      'Total',
-                      '\$${controller.total.toStringAsFixed(2)}',
+                    SummaryRow(
+                      label: 'Total',
+                      value: '\$${controller.total.toStringAsFixed(2)}',
                       isBold: true,
                     ),
                   ],
@@ -118,56 +115,15 @@ class CheckoutScreen extends GetView<CheckoutController> {
             ),
             const SizedBox(height: 32),
 
-            // ── Place Order ──
             Obx(
-              () => SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: controller.isLoading.value
-                      ? null
-                      : controller.placeOrder,
-                  child: controller.isLoading.value
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Text('Place Order'),
-                ),
+              () => LoadingButton(
+                label: 'Place Order',
+                isLoading: controller.isLoading.value,
+                onPressed: controller.placeOrder,
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _summaryRow(String label, String value, {bool isBold = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: isBold ? FontWeight.w700 : FontWeight.normal,
-              fontSize: isBold ? 16 : 14,
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
-              fontSize: isBold ? 18 : 14,
-              color: isBold ? AppTheme.primary : null,
-            ),
-          ),
-        ],
       ),
     );
   }

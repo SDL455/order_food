@@ -3,6 +3,9 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/auth_input_field.dart';
+import '../../../core/widgets/auth_prompt_row.dart';
+import '../../../core/widgets/loading_button.dart';
 import '../../../routes/app_routes.dart';
 import '../controller/auth_controller.dart';
 
@@ -59,14 +62,14 @@ class LoginScreen extends GetView<AuthController> {
                   .slideX(begin: -0.1, end: 0),
               const SizedBox(height: 40),
 
-              _buildInputField(
+              AuthInputField(
                 hint: 'Email address',
                 icon: Icons.email_outlined,
                 onChanged: (v) => controller.email.value = v,
               ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.2, end: 0),
               const SizedBox(height: 16),
 
-              _buildInputField(
+              AuthInputField(
                 hint: 'Password',
                 icon: Icons.lock_outline,
                 onChanged: (v) => controller.password.value = v,
@@ -90,29 +93,12 @@ class LoginScreen extends GetView<AuthController> {
               const SizedBox(height: 24),
 
               Obx(
-                () => SizedBox(
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: controller.isLoading.value ? null : controller.login,
-                    child: controller.isLoading.value
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : const Text(
-                            'Sign In',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                  ),
+                () => LoadingButton(
+                  label: 'Sign In',
+                  isLoading: controller.isLoading.value,
+                  onPressed: controller.login,
                 ),
-              )
-                  .animate()
-                  .fadeIn(delay: 500.ms)
-                  .slideY(begin: 0.2, end: 0),
+              ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.2, end: 0),
               const SizedBox(height: 32),
 
               Row(
@@ -143,70 +129,12 @@ class LoginScreen extends GetView<AuthController> {
                   .slideY(begin: 0.2, end: 0),
               const SizedBox(height: 32),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Don't have an account? ",
-                    style: TextStyle(color: AppTheme.textSecondary),
-                  ),
-                  GestureDetector(
-                    onTap: () => Get.toNamed(AppRoutes.register),
-                    child: Text(
-                      'Sign Up',
-                      style: TextStyle(
-                        color: AppTheme.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              )
-                  .animate()
-                  .fadeIn(delay: 800.ms),
+              AuthPromptRow(
+                promptText: "Don't have an account? ",
+                actionText: 'Sign Up',
+                onTap: () => Get.toNamed(AppRoutes.register),
+              ).animate().fadeIn(delay: 800.ms),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInputField({
-    required String hint,
-    required IconData icon,
-    required Function(String) onChanged,
-    bool obscureText = false,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: TextField(
-        onChanged: onChanged,
-        obscureText: obscureText,
-        keyboardType: TextInputType.emailAddress,
-        decoration: InputDecoration(
-          hintText: hint,
-          prefixIcon: Icon(icon, color: AppTheme.textSecondary),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
           ),
         ),
       ),
