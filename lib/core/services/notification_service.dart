@@ -41,7 +41,7 @@ class NotificationService {
       iOS: iosInit,
     );
     await _local.initialize(
-      initSettings,
+      settings: initSettings,
       onDidReceiveNotificationResponse: _onTap,
     );
 
@@ -68,10 +68,10 @@ class NotificationService {
     if (notification == null) return;
 
     _local.show(
-      notification.hashCode,
-      notification.title,
-      notification.body,
-      NotificationDetails(
+      id: notification.hashCode,
+      title: notification.title ?? '',
+      body: notification.body ?? '',
+      notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           _channel.id,
           _channel.name,
@@ -85,9 +85,14 @@ class NotificationService {
   }
 
   void _onTap(NotificationResponse response) {
-    if (response.payload != null) {
-      final data = jsonDecode(response.payload!) as Map<String, dynamic>;
-      _navigateFromData(data);
+    final payload = response.payload;
+    if (payload != null && payload.isNotEmpty) {
+      try {
+        final data = jsonDecode(payload) as Map<String, dynamic>;
+        _navigateFromData(data);
+      } catch (_) {
+        // Ignore invalid payload
+      }
     }
   }
 

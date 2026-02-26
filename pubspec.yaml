@@ -16,30 +16,30 @@ dependencies:
   get_storage: ^2.1.1
 
   # Firebase
-  firebase_core: ^3.12.1
-  firebase_auth: ^5.5.1
-  cloud_firestore: ^5.6.5
-  firebase_storage: ^12.4.4
-  firebase_messaging: ^15.2.4
+  firebase_core: ^4.4.0
+  firebase_auth: ^6.1.4
+  cloud_firestore: ^6.1.2
+  firebase_storage: ^13.0.6
+  firebase_messaging: ^16.1.1
 
   # Notifications
-  flutter_local_notifications: ^18.0.1
+  flutter_local_notifications: ^20.1.0
 
   # Image / Media
   cached_network_image: ^3.4.1
   image_picker: ^1.1.2
 
   # UI Enhancement
-  google_fonts: ^6.2.1
+  google_fonts: ^8.0.2
   shimmer: ^3.0.0
   flutter_animate: ^4.5.2
 
   # Utilities
   intl: ^0.20.2
   uuid: ^4.5.1
-  connectivity_plus: ^6.1.1
+  connectivity_plus: ^7.0.0
   logger: ^2.6.2
-  flutter_chat_ui: ^1.6.8
+  flutter_chat_ui: ^2.11.1
   flutter_chat_types: ^3.6.2
   flutter_speed_dial: ^7.0.0
   flutter_rating_bar: ^4.0.1
