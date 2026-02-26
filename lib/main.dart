@@ -5,6 +5,7 @@ import 'package:get_storage/get_storage.dart';
 import 'app.dart';
 import 'core/services/notification_service.dart';
 import 'features/cart/controller/cart_controller.dart';
+import 'data/repositories/auth_repository.dart';
 
 /// Entry point — initialise Firebase, GetStorage, FCM, then run the app.
 void main() async {
@@ -21,6 +22,9 @@ void main() async {
 
   // Push notifications & local notifications
   await NotificationService.instance.init();
+
+  // Ensure latest FCM token is stored for logged-in user
+  await AuthRepository().refreshFcmToken();
 
   runApp(const App());
 }

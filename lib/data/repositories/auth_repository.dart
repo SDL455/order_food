@@ -44,6 +44,18 @@ class AuthRepository {
 
   /// Sign out.
   Future<void> logout() async {
+    final uid = FirebaseService.uid;
+
+    // Remove this device's FCM token from user doc so it stops receiving pushes
+    if (uid.isNotEmpty) {
+      final token = await NotificationService.instance.getToken();
+      if (token != null && token.isNotEmpty) {
+        await _users.doc(uid).update({
+          'fcmTokens': FieldValue.arrayRemove([token]),
+        });
+      }
+    }
+
     await _auth.signOut();
   }
 
