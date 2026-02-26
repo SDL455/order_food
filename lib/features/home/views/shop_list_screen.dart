@@ -86,7 +86,9 @@ class ShopListScreen extends GetView<HomeController> {
                 ),
                 child: IconButton(
                   icon: Icon(
-                    FirebaseService.isLoggedIn ? Icons.person : Icons.person_outline,
+                    FirebaseService.isLoggedIn
+                        ? Icons.person
+                        : Icons.person_outline,
                   ),
                   onPressed: () {
                     if (FirebaseService.isLoggedIn) {
@@ -107,10 +109,13 @@ class ShopListScreen extends GetView<HomeController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   ShopSearchBar(
-                    controller: controller.searchController,
-                    onChanged: (v) => controller.searchQuery.value = v,
-                    onClear: () => controller.searchQuery.value = '',
-                  ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1, end: 0),
+                        controller: controller.searchController,
+                        onChanged: (v) => controller.searchQuery.value = v,
+                        onClear: () => controller.searchQuery.value = '',
+                      )
+                      .animate()
+                      .fadeIn(duration: 400.ms)
+                      .slideY(begin: -0.1, end: 0),
                   const SizedBox(height: 20),
                   Text(
                     'Popular Restaurants',
@@ -141,23 +146,28 @@ class ShopListScreen extends GetView<HomeController> {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
-                  children: List.generate(
-                    shops.length,
-                    (index) {
-                      final shop = shops[index];
-                      return ShopCard(
-                        shop: shop,
-                        onTap: () => Get.toNamed(AppRoutes.shopDetail, arguments: shop.id),
-                      ).animate(delay: (index * 100).ms).fadeIn().slideX(begin: 0.1, end: 0);
-                    },
-                  ),
+                  children: List.generate(shops.length, (index) {
+                    final shop = shops[index];
+                    return ShopCard(
+                          shop: shop,
+                          onTap: () => Get.toNamed(
+                            AppRoutes.shopDetail,
+                            arguments: shop.id,
+                          ),
+                        )
+                        .animate(delay: (index * 100).ms)
+                        .fadeIn()
+                        .slideX(begin: 0.1, end: 0);
+                  }),
                 ),
               );
             }),
           ),
         ],
       ),
-      bottomNavigationBar: FirebaseService.isLoggedIn ? const MainBottomNav() : null,
+      bottomNavigationBar: FirebaseService.isLoggedIn
+          ? const MainBottomNav()
+          : null,
     );
   }
 
@@ -167,17 +177,17 @@ class ShopListScreen extends GetView<HomeController> {
       child: Column(
         children: List.generate(
           3,
-          (index) => Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            height: 180,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-          ).animate(onPlay: (controller) => controller.repeat()).shimmer(
-                duration: 1200.ms,
-                color: Colors.grey.shade100,
-              ),
+          (index) =>
+              Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    height: 180,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  )
+                  .animate(onPlay: (controller) => controller.repeat())
+                  .shimmer(duration: 1200.ms, color: Colors.grey.shade100),
         ),
       ),
     );

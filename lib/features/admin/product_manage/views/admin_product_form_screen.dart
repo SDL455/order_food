@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/loading_button.dart';
+import '../../../../routes/app_routes.dart';
 import '../controller/admin_product_controller.dart';
 
 /// Admin product form screen — add or edit a product.
@@ -15,55 +16,68 @@ class AdminProductFormScreen extends GetView<AdminProductController> {
     final isEditing = controller.editingProduct != null;
 
     return Scaffold(
-      appBar: AppBar(title: Text(isEditing ? 'Edit Product' : 'Add Product')),
+      appBar: AppBar(
+        title: Text(isEditing ? 'Edit Product' : 'Add Product'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.category),
+            tooltip: 'Manage Categories',
+            onPressed: () async {
+              await Get.toNamed(
+                AppRoutes.adminCategories,
+                arguments: controller.shopId,
+              );
+              controller.fetchCategories();
+            },
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Obx(
-              () {
-                final urls = controller.imageUrls.toList();
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Product Images',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.textSecondary,
-                      ),
+            Obx(() {
+              final urls = controller.imageUrls.toList();
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Product Images',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.textSecondary,
                     ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        ...urls.asMap().entries.map(
-                              (e) => _buildImageChip(
-                                url: e.value,
-                                onRemove: () => controller.removeImage(e.key),
-                              ),
-                            ),
-                        _buildAddImageButton(),
-                      ],
-                    ),
-                    if (urls.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Text(
-                          'Tap + to add images (compressed before upload)',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.textSecondary,
-                          ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      ...urls.asMap().entries.map(
+                        (e) => _buildImageChip(
+                          url: e.value,
+                          onRemove: () => controller.removeImage(e.key),
                         ),
                       ),
-                  ],
-                );
-              },
-            ),
+                      _buildAddImageButton(),
+                    ],
+                  ),
+                  if (urls.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        'Tap + to add images (compressed before upload)',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            }),
             const SizedBox(height: 20),
             TextField(
               controller: TextEditingController(text: controller.name.value),
@@ -89,16 +103,51 @@ class AdminProductFormScreen extends GetView<AdminProductController> {
               ),
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: TextEditingController(
-                text: controller.category.value,
-              ),
-              onChanged: (v) => controller.category.value = v,
-              decoration: const InputDecoration(
-                labelText: 'Category',
-                prefixIcon: Icon(Icons.category_outlined),
-              ),
-            ),
+            Obx(() {
+              final cats = controller.categories;
+              final currentCat = controller.category.value;
+              final hasCurrentInList =
+                  currentCat.isNotEmpty &&
+                  cats.any((c) => c.name == currentCat);
+              return InputDecorator(
+                decoration: const InputDecoration(
+                  labelText: 'Category',
+                  prefixIcon: Icon(Icons.category_outlined),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: currentCat.isEmpty ? '' : currentCat,
+                    hint: Text(
+                      cats.isEmpty
+                          ? 'Add categories first (tap icon above)'
+                          : 'Select category',
+                      style: TextStyle(color: AppTheme.textSecondary),
+                    ),
+                    isExpanded: true,
+                    items: [
+                      const DropdownMenuItem<String>(
+                        value: '',
+                        child: Text('— None —'),
+                      ),
+                      ...cats.map(
+                        (c) => DropdownMenuItem<String>(
+                          value: c.name,
+                          child: Text(c.name),
+                        ),
+                      ),
+                      if (currentCat.isNotEmpty && !hasCurrentInList)
+                        DropdownMenuItem<String>(
+                          value: currentCat,
+                          child: Text('$currentCat (legacy)'),
+                        ),
+                    ],
+                    onChanged: cats.isEmpty
+                        ? null
+                        : (v) => controller.category.value = v ?? '',
+                  ),
+                ),
+              );
+            }),
             const SizedBox(height: 16),
             TextField(
               controller: TextEditingController(text: controller.desc.value),
@@ -152,7 +201,9 @@ class AdminProductFormScreen extends GetView<AdminProductController> {
             fit: BoxFit.cover,
             placeholder: (_, __) => Container(
               color: Colors.grey.shade200,
-              child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+              child: const Center(
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
             ),
             errorWidget: (_, __, ___) => Container(
               color: Colors.grey.shade200,
@@ -193,7 +244,11 @@ class AdminProductFormScreen extends GetView<AdminProductController> {
         child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add_photo_alternate, size: 32, color: AppTheme.textSecondary),
+            Icon(
+              Icons.add_photo_alternate,
+              size: 32,
+              color: AppTheme.textSecondary,
+            ),
             SizedBox(height: 4),
             Text(
               'Add',

@@ -19,6 +19,7 @@ abstract class AppRoutes {
   static const adminDashboard = '/admin/dashboard';
   static const adminProducts = '/admin/products';
   static const adminProductForm = '/admin/product-form';
+  static const adminCategories = '/admin/categories';
   static const adminOrders = '/admin/orders';
   static const adminChatList = '/admin/chat-list';
 }

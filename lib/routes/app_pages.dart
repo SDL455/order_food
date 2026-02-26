@@ -40,6 +40,9 @@ import '../features/admin/product_manage/binding/admin_product_binding.dart';
 import '../features/admin/product_manage/views/admin_product_list_screen.dart';
 import '../features/admin/product_manage/views/admin_product_form_screen.dart';
 
+import '../features/admin/category_manage/binding/admin_category_binding.dart';
+import '../features/admin/category_manage/views/admin_category_screen.dart';
+
 import '../features/admin/order_manage/binding/admin_order_binding.dart';
 import '../features/admin/order_manage/views/admin_orders_screen.dart';
 
@@ -125,6 +128,11 @@ class AppPages {
       name: AppRoutes.adminProductForm,
       page: () => const AdminProductFormScreen(),
       binding: AdminProductBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.adminCategories,
+      page: () => const AdminCategoryScreen(),
+      binding: AdminCategoryBinding(),
     ),
     GetPage(
       name: AppRoutes.adminOrders,

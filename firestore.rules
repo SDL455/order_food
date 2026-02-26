@@ -49,6 +49,15 @@ service cloud.firestore {
         resource.data.ownerUid == request.auth.uid;
       allow delete: if false;
 
+      // ── Categories (subcollection of shop) ──
+      match /categories/{categoryId} {
+        // Anyone can read categories (for product form dropdown)
+        allow read: if true;
+        // Only the shop owner can CUD categories
+        allow create, update, delete: if isLoggedIn() &&
+          get(/databases/$(database)/documents/shops/$(shopId)).data.ownerUid == request.auth.uid;
+      }
+
       // ── Products (subcollection of shop) ──
       match /products/{productId} {
         // Anyone can read products (guest browsing)

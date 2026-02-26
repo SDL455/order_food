@@ -6,6 +6,7 @@ class AppConstants {
   static const String usersCol = 'users';
   static const String shopsCol = 'shops';
   static const String productsCol = 'products';
+  static const String categoriesCol = 'categories';
   static const String ordersCol = 'orders';
   static const String chatsCol = 'chats';
   static const String messagesCol = 'messages';

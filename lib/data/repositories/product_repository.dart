@@ -55,8 +55,8 @@ class ProductRepository {
     await _productsRef(shopId).doc(productId).update(data);
   }
 
-  /// Soft-delete a product (set isActive = false).
+  /// Hard-delete a product (remove from Firestore).
   Future<void> deleteProduct(String shopId, String productId) async {
-    await _productsRef(shopId).doc(productId).update({'isActive': false});
+    await _productsRef(shopId).doc(productId).delete();
   }
 }

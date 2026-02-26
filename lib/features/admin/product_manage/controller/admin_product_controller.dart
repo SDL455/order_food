@@ -7,14 +7,18 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../core/utils/image_compression_util.dart';
 import '../../../../core/services/storage_service.dart';
+import '../../../../data/models/category_model.dart';
 import '../../../../data/models/product_model.dart';
+import '../../../../data/repositories/category_repository.dart';
 import '../../../../data/repositories/product_repository.dart';
 
 /// Admin product management controller — CRUD operations.
 class AdminProductController extends GetxController {
   final ProductRepository _repo = ProductRepository();
+  final CategoryRepository _categoryRepo = CategoryRepository();
 
   final products = <ProductModel>[].obs;
+  final categories = <CategoryModel>[].obs;
   final isLoading = true.obs;
   final isSaving = false.obs;
 
@@ -35,6 +39,16 @@ class AdminProductController extends GetxController {
   void onInit() {
     super.onInit();
     fetchProducts();
+    fetchCategories();
+  }
+
+  Future<void> fetchCategories() async {
+    if (shopId.isEmpty) return;
+    try {
+      categories.value = await _categoryRepo.getCategories(shopId);
+    } catch (e, st) {
+      AppLogger.e('fetchCategories failed', e, st);
+    }
   }
 
   Future<void> fetchProducts() async {
@@ -172,7 +186,7 @@ class AdminProductController extends GetxController {
     }
   }
 
-  /// Soft-delete a product.
+  /// Delete a product (remove from Firestore).
   Future<void> deleteProduct(String productId) async {
     try {
       await _repo.deleteProduct(shopId, productId);
