@@ -1,67 +1,87 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 import '../controller/auth_controller.dart';
 
-/// Register screen with email, password, name, and role selection.
 class RegisterScreen extends GetView<AuthController> {
   const RegisterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create Account')),
+      appBar: AppBar(
+        title: const Text('Create Account'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () => Get.back(),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.all(28),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Text(
+                'Join Us!',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
+                ),
+              )
+                  .animate()
+                  .fadeIn()
+                  .slideX(begin: -0.1, end: 0),
+              const SizedBox(height: 8),
+              Text(
+                'Create an account to start ordering',
+                style: TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: 15,
+                ),
+              )
+                  .animate()
+                  .fadeIn(delay: 100.ms)
+                  .slideX(begin: -0.1, end: 0),
               const SizedBox(height: 32),
 
-              // Name field
-              TextField(
+              _buildInputField(
+                hint: 'Full Name',
+                icon: Icons.person_outline,
                 onChanged: (v) => controller.displayName.value = v,
-                decoration: const InputDecoration(
-                  hintText: 'Full Name',
-                  prefixIcon: Icon(Icons.person_outline),
-                ),
-              ),
+              ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2, end: 0),
               const SizedBox(height: 16),
 
-              // Email field
-              TextField(
+              _buildInputField(
+                hint: 'Email address',
+                icon: Icons.email_outlined,
                 onChanged: (v) => controller.email.value = v,
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  hintText: 'Email',
-                  prefixIcon: Icon(Icons.email_outlined),
-                ),
-              ),
+              ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.2, end: 0),
               const SizedBox(height: 16),
 
-              // Password field
-              TextField(
+              _buildInputField(
+                hint: 'Password',
+                icon: Icons.lock_outline,
                 onChanged: (v) => controller.password.value = v,
                 obscureText: true,
-                decoration: const InputDecoration(
-                  hintText: 'Password',
-                  prefixIcon: Icon(Icons.lock_outline),
-                ),
-              ),
+              ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.2, end: 0),
               const SizedBox(height: 24),
 
-              // Role selection
-              const Text(
+              Text(
                 'I want to:',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: AppTheme.textPrimary,
                 ),
-              ),
+              )
+                  .animate()
+                  .fadeIn(delay: 500.ms),
               const SizedBox(height: 12),
               Obx(
                 () => Row(
@@ -72,10 +92,8 @@ class RegisterScreen extends GetView<AuthController> {
                         label: 'Order Food',
                         subtitle: 'Customer',
                         isSelected:
-                            controller.selectedRole.value ==
-                            AppConstants.roleCustomer,
-                        onTap: () => controller.selectedRole.value =
-                            AppConstants.roleCustomer,
+                            controller.selectedRole.value == AppConstants.roleCustomer,
+                        onTap: () => controller.selectedRole.value = AppConstants.roleCustomer,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -85,25 +103,20 @@ class RegisterScreen extends GetView<AuthController> {
                         label: 'Sell Food',
                         subtitle: 'Shop Admin',
                         isSelected:
-                            controller.selectedRole.value ==
-                            AppConstants.roleAdmin,
-                        onTap: () => controller.selectedRole.value =
-                            AppConstants.roleAdmin,
+                            controller.selectedRole.value == AppConstants.roleAdmin,
+                        onTap: () => controller.selectedRole.value = AppConstants.roleAdmin,
                       ),
                     ),
                   ],
                 ),
-              ),
+              ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.2, end: 0),
               const SizedBox(height: 32),
 
-              // Register button
               Obx(
                 () => SizedBox(
-                  height: 52,
+                  height: 56,
                   child: ElevatedButton(
-                    onPressed: controller.isLoading.value
-                        ? null
-                        : controller.register,
+                    onPressed: controller.isLoading.value ? null : controller.register,
                     child: controller.isLoading.value
                         ? const SizedBox(
                             width: 24,
@@ -113,23 +126,22 @@ class RegisterScreen extends GetView<AuthController> {
                               strokeWidth: 2,
                             ),
                           )
-                        : const Text('Create Account'),
+                        : const Text('Create Account', style: TextStyle(fontSize: 16)),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
+              ).animate().fadeIn(delay: 700.ms).slideY(begin: 0.2, end: 0),
+              const SizedBox(height: 24),
 
-              // Login link
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
+                  Text(
                     'Already have an account? ',
                     style: TextStyle(color: AppTheme.textSecondary),
                   ),
                   GestureDetector(
                     onTap: () => Get.back(),
-                    child: const Text(
+                    child: Text(
                       'Sign In',
                       style: TextStyle(
                         color: AppTheme.primary,
@@ -138,9 +150,51 @@ class RegisterScreen extends GetView<AuthController> {
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 24),
+              ).animate().fadeIn(delay: 800.ms),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputField({
+    required String hint,
+    required IconData icon,
+    required Function(String) onChanged,
+    bool obscureText = false,
+    TextInputType? keyboardType,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: TextField(
+        onChanged: onChanged,
+        obscureText: obscureText,
+        keyboardType: keyboardType,
+        decoration: InputDecoration(
+          hintText: hint,
+          prefixIcon: Icon(icon, color: AppTheme.textSecondary),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
           ),
         ),
       ),
@@ -148,7 +202,6 @@ class RegisterScreen extends GetView<AuthController> {
   }
 }
 
-/// Simple role selection card.
 class _RoleCard extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -172,30 +225,49 @@ class _RoleCard extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppTheme.primary.withValues(alpha: 0.1)
-              : Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(16),
+          color: isSelected ? AppTheme.primary.withValues(alpha: 0.1) : Colors.white,
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: isSelected ? AppTheme.primary : Colors.grey.shade200,
             width: isSelected ? 2 : 1,
           ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppTheme.primary.withValues(alpha: 0.15),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
         ),
         child: Column(
           children: [
-            Icon(
-              icon,
-              size: 32,
-              color: isSelected ? AppTheme.primary : AppTheme.textSecondary,
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? AppTheme.primary.withValues(alpha: 0.15)
+                    : Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(
+                icon,
+                size: 26,
+                color: isSelected ? AppTheme.primary : AppTheme.textSecondary,
+              ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Text(
               label,
               style: TextStyle(
                 fontWeight: FontWeight.w600,
+                fontSize: 14,
                 color: isSelected ? AppTheme.primary : AppTheme.textPrimary,
               ),
             ),
+            const SizedBox(height: 2),
             Text(
               subtitle,
               style: const TextStyle(
