@@ -4,6 +4,7 @@
  * Triggers:
  * 1. onOrderCreated — sends FCM push to the shop admin when a new order is placed
  * 2. onOrderStatusChanged — sends FCM push to the customer when order status changes
+ * 3. onChatMessageCreated — sends FCM push when customer chats with admin (and vice versa)
  *
  * Deploy: firebase deploy --only functions
  * Requires: Firebase Blaze plan
@@ -142,3 +143,63 @@ exports.onOrderStatusChanged = onDocumentUpdated("orders/{orderId}", async (even
     console.error("Error sending status update notification:", error);
   }
 });
+
+/**
+ * Trigger: New message in chat
+ * → Send push notification to the receiver (customer or admin)
+ */
+exports.onChatMessageCreated = onDocumentCreated(
+  "chats/{chatId}/messages/{messageId}",
+  async (event) => {
+    const message = event.data.data();
+    const chatId = event.params.chatId;
+
+    const toUid = message.toUid;
+    if (!toUid) return;
+
+    try {
+      const receiverDoc = await db.collection("users").doc(toUid).get();
+      if (!receiverDoc.exists) return;
+
+      const tokens = receiverDoc.data().fcmTokens || [];
+      if (tokens.length === 0) return;
+
+      const isImage = message.type === "image" && message.imageUrl;
+      const body = isImage
+        ? "📷 ຮູບພາບ"
+        : (message.text || "").substring(0, 80);
+
+      const msg = {
+        notification: {
+          title: "💬 ຂໍ້ຄວາມໃໝ່",
+          body: body || "ມີຂໍ້ຄວາມໃໝ່",
+        },
+        data: {
+          type: "chat",
+          chatId: chatId,
+        },
+        tokens: tokens,
+      };
+
+      const response = await messaging.sendEachForMulticast(msg);
+      console.log(
+        `Sent chat notification: ${response.successCount} success, ${response.failureCount} failure`
+      );
+
+      if (response.failureCount > 0) {
+        const invalidTokens = [];
+        response.responses.forEach((resp, idx) => {
+          if (!resp.success) invalidTokens.push(tokens[idx]);
+        });
+        if (invalidTokens.length > 0) {
+          const { FieldValue } = require("firebase-admin/firestore");
+          await db.collection("users").doc(toUid).update({
+            fcmTokens: FieldValue.arrayRemove(invalidTokens),
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error sending chat notification:", error);
+    }
+  }
+);

@@ -38,6 +38,15 @@ class ChatController extends GetxController {
 
   String get shopIdFromArgs => Get.arguments as String? ?? '';
 
+  /// ChatId from notification tap (arguments: {'chatId': '...'}).
+  String? get _chatIdFromArgs {
+    final args = Get.arguments;
+    if (args is Map && args['chatId'] != null) {
+      return args['chatId'] as String?;
+    }
+    return null;
+  }
+
   /// Shops filtered by search (for customer).
   List<ShopModel> get filteredShops {
     final q = searchQuery.value.trim().toLowerCase();
@@ -48,8 +57,33 @@ class ChatController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _loadChats();
-    if (!isAdmin) _loadShops();
+    final chatId = _chatIdFromArgs;
+    if (chatId != null && chatId.isNotEmpty) {
+      _openChatById(chatId);
+    } else {
+      _loadChats();
+      if (!isAdmin) _loadShops();
+    }
+  }
+
+  /// Open a chat by ID (e.g. from notification tap).
+  Future<void> _openChatById(String chatId) async {
+    isLoading.value = true;
+    try {
+      final chat = await _chatRepo.getChat(chatId);
+      if (chat != null) {
+        openChat(chat);
+      } else {
+        Get.snackbar(
+          'ບໍ່ພົບການສົນທະນາ',
+          'ການສົນທະນາອາດຈະຖືກລຶບແລ້ວ',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        Get.back();
+      }
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> _loadShops() async {

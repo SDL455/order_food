@@ -9,6 +9,13 @@ import '../models/message_model.dart';
 class ChatRepository {
   final _chats = FirebaseService.firestore.collection(AppConstants.chatsCol);
 
+  /// Get a chat by ID.
+  Future<ChatModel?> getChat(String chatId) async {
+    final doc = await _chats.doc(chatId).get();
+    if (!doc.exists) return null;
+    return ChatModel.fromMap(doc.data()!, doc.id);
+  }
+
   /// Get or create a chat between a customer and a shop.
   Future<ChatModel> getOrCreateChat({
     required String shopId,

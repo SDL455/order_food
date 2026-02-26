@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 
@@ -50,7 +51,12 @@ class NotificationService {
     // ── Background / terminated tap ──
     FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
     final initial = await _fcm.getInitialMessage();
-    if (initial != null) _handleMessage(initial);
+    if (initial != null) {
+      // Defer navigation until app is built (cold start from notification tap)
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _handleMessage(initial);
+      });
+    }
   }
 
   /// Get the current FCM token.
@@ -95,7 +101,12 @@ class NotificationService {
     if (type == 'order') {
       Get.toNamed('/orders');
     } else if (type == 'chat') {
-      Get.toNamed('/chat', arguments: data['chatId']);
+      final chatId = data['chatId'] as String?;
+      if (chatId != null && chatId.isNotEmpty) {
+        Get.toNamed('/chat', arguments: {'chatId': chatId});
+      } else {
+        Get.toNamed('/chat-list');
+      }
     }
   }
 }
