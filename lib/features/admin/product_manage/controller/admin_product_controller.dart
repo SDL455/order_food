@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/app_logger.dart';
@@ -55,7 +56,9 @@ class AdminProductController extends GetxController {
     price.value = p.price;
     desc.value = p.desc;
     category.value = p.category;
-    imageUrls.value = p.imageUrls.isNotEmpty ? List.from(p.imageUrls) : (p.imageUrl.isNotEmpty ? [p.imageUrl] : []);
+    imageUrls.value = p.imageUrls.isNotEmpty
+        ? List.from(p.imageUrls)
+        : (p.imageUrl.isNotEmpty ? [p.imageUrl] : []);
     isActive.value = p.isActive;
   }
 
@@ -68,6 +71,25 @@ class AdminProductController extends GetxController {
     category.value = '';
     imageUrls.value = [];
     isActive.value = true;
+  }
+
+  /// Pick images from gallery and upload them.
+  Future<void> pickAndUploadImages() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickMultiImage(limit: 10);
+    if (picked.isEmpty) return;
+    final files = <File>[];
+    for (final x in picked) {
+      if (x.path.isNotEmpty) {
+        final f = File(x.path);
+        if (await f.exists()) files.add(f);
+      }
+    }
+    if (files.isNotEmpty) {
+      await uploadImages(files);
+    } else {
+      Get.snackbar('Error', 'Could not read selected images');
+    }
   }
 
   /// Remove image at index.

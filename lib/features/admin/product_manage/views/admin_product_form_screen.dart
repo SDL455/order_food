@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../core/theme/app_theme.dart';
@@ -184,7 +181,7 @@ class AdminProductFormScreen extends GetView<AdminProductController> {
 
   Widget _buildAddImageButton() {
     return GestureDetector(
-      onTap: _pickImages,
+      onTap: controller.pickAndUploadImages,
       child: Container(
         width: 100,
         height: 100,
@@ -206,23 +203,5 @@ class AdminProductFormScreen extends GetView<AdminProductController> {
         ),
       ),
     );
-  }
-
-  Future<void> _pickImages() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickMultiImage(limit: 10);
-    if (picked.isEmpty) return;
-    final files = <File>[];
-    for (final x in picked) {
-      if (x.path.isNotEmpty) {
-        final f = File(x.path);
-        if (await f.exists()) files.add(f);
-      }
-    }
-    if (files.isNotEmpty) {
-      await controller.uploadImages(files);
-    } else {
-      Get.snackbar('Error', 'Could not read selected images');
-    }
   }
 }
