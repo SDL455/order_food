@@ -88,7 +88,7 @@ class ChatRepository {
         .add(message.toMap());
 
     // Update the chat's last message
-    final lastMsg = message.isImage ? '📷 ຮູບພາບ' : message.text;
+    final lastMsg = message.isImage ? 'ຮູບພາບ' : message.text;
     await _chats.doc(chatId).update({
       'lastMessage': lastMsg,
       'lastAt': FieldValue.serverTimestamp(),

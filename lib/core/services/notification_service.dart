@@ -25,6 +25,12 @@ class NotificationService {
   Future<void> init() async {
     // Request permission (iOS / web)
     await _fcm.requestPermission(alert: true, badge: true, sound: true);
+    // Ensure notifications also show while app is in foreground on iOS
+    await _fcm.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
 
     // Create Android notification channel
     final androidPlugin = _local
