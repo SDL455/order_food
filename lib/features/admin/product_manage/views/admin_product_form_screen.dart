@@ -25,41 +25,47 @@ class AdminProductFormScreen extends GetView<AdminProductController> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Obx(
-              () => GestureDetector(
-                onTap: _pickImage,
-                child: Container(
-                  height: 180,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  child: controller.imageUrl.value.isNotEmpty
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: CachedNetworkImage(
-                            imageUrl: controller.imageUrl.value,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
+              () {
+                final urls = controller.imageUrls.toList();
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Product Images',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        ...urls.asMap().entries.map(
+                              (e) => _buildImageChip(
+                                url: e.value,
+                                onRemove: () => controller.removeImage(e.key),
+                              ),
+                            ),
+                        _buildAddImageButton(),
+                      ],
+                    ),
+                    if (urls.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          'Tap + to add images (compressed before upload)',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.textSecondary,
                           ),
-                        )
-                      : const Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.camera_alt_outlined,
-                              size: 40,
-                              color: AppTheme.textSecondary,
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Tap to add image',
-                              style: TextStyle(color: AppTheme.textSecondary),
-                            ),
-                          ],
                         ),
-                ),
-              ),
+                      ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 20),
             TextField(
@@ -133,15 +139,90 @@ class AdminProductFormScreen extends GetView<AdminProductController> {
     );
   }
 
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 800,
-      imageQuality: 80,
+  Widget _buildImageChip({
+    required String url,
+    required VoidCallback onRemove,
+  }) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: CachedNetworkImage(
+            imageUrl: url,
+            width: 100,
+            height: 100,
+            fit: BoxFit.cover,
+            placeholder: (_, __) => Container(
+              color: Colors.grey.shade200,
+              child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            ),
+            errorWidget: (_, __, ___) => Container(
+              color: Colors.grey.shade200,
+              child: const Icon(Icons.broken_image, color: Colors.grey),
+            ),
+          ),
+        ),
+        Positioned(
+          top: -6,
+          right: -6,
+          child: GestureDetector(
+            onTap: onRemove,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: const BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.close, size: 16, color: Colors.white),
+            ),
+          ),
+        ),
+      ],
     );
-    if (picked != null) {
-      await controller.uploadImage(File(picked.path));
+  }
+
+  Widget _buildAddImageButton() {
+    return GestureDetector(
+      onTap: _pickImages,
+      child: Container(
+        width: 100,
+        height: 100,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.add_photo_alternate, size: 32, color: AppTheme.textSecondary),
+            SizedBox(height: 4),
+            Text(
+              'Add',
+              style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickImages() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickMultiImage(limit: 10);
+    if (picked.isEmpty) return;
+    final files = <File>[];
+    for (final x in picked) {
+      if (x.path.isNotEmpty) {
+        final f = File(x.path);
+        if (await f.exists()) files.add(f);
+      }
+    }
+    if (files.isNotEmpty) {
+      await controller.uploadImages(files);
+    } else {
+      Get.snackbar('Error', 'Could not read selected images');
     }
   }
 }

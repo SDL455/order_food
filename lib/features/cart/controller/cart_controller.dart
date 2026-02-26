@@ -48,7 +48,7 @@ class CartController extends GetxController {
           shopId: product.shopId,
           name: product.name,
           price: product.price,
-          imageUrl: product.imageUrl,
+          imageUrl: product.displayImageUrl,
         ),
       );
     }

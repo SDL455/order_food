@@ -1,6 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
 import '../../core/constants/app_constants.dart';
 import '../../core/services/firebase_service.dart';
 import '../../core/services/notification_service.dart';

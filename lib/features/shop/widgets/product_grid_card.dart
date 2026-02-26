@@ -32,9 +32,9 @@ class ProductGridCard extends StatelessWidget {
               borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
               child: Stack(
                 children: [
-                  product.imageUrl.isNotEmpty
+                  product.displayImageUrl.isNotEmpty
                       ? CachedNetworkImage(
-                          imageUrl: product.imageUrl,
+                          imageUrl: product.displayImageUrl,
                           height: 120,
                           width: double.infinity,
                           fit: BoxFit.cover,

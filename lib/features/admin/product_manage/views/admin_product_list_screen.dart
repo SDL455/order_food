@@ -58,9 +58,9 @@ class AdminProductListScreen extends GetView<AdminProductController> {
                 contentPadding: const EdgeInsets.all(12),
                 leading: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: p.imageUrl.isNotEmpty
+                  child: p.displayImageUrl.isNotEmpty
                       ? CachedNetworkImage(
-                          imageUrl: p.imageUrl,
+                          imageUrl: p.displayImageUrl,
                           width: 56,
                           height: 56,
                           fit: BoxFit.cover,

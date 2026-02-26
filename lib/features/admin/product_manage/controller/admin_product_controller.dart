@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/image_compression_util.dart';
 import '../../../../core/services/storage_service.dart';
 import '../../../../data/models/product_model.dart';
 import '../../../../data/repositories/product_repository.dart';
@@ -21,7 +22,7 @@ class AdminProductController extends GetxController {
   final price = 0.0.obs;
   final desc = ''.obs;
   final category = ''.obs;
-  final imageUrl = ''.obs;
+  final imageUrls = <String>[].obs;
   final isActive = true.obs;
 
   String get shopId => Get.arguments as String? ?? '';
@@ -54,7 +55,7 @@ class AdminProductController extends GetxController {
     price.value = p.price;
     desc.value = p.desc;
     category.value = p.category;
-    imageUrl.value = p.imageUrl;
+    imageUrls.value = p.imageUrls.isNotEmpty ? List.from(p.imageUrls) : (p.imageUrl.isNotEmpty ? [p.imageUrl] : []);
     isActive.value = p.isActive;
   }
 
@@ -65,21 +66,37 @@ class AdminProductController extends GetxController {
     price.value = 0;
     desc.value = '';
     category.value = '';
-    imageUrl.value = '';
+    imageUrls.value = [];
     isActive.value = true;
   }
 
-  /// Upload an image and set the imageUrl.
-  Future<void> uploadImage(File file) async {
+  /// Remove image at index.
+  void removeImage(int index) {
+    if (index >= 0 && index < imageUrls.length) {
+      imageUrls.removeAt(index);
+      imageUrls.refresh();
+    }
+  }
+
+  /// Upload one or more images (compressed) and append URLs.
+  Future<void> uploadImages(List<File> files) async {
+    if (files.isEmpty) return;
     try {
       isSaving.value = true;
-      final url = await StorageService.instance.uploadImage(
-        file,
-        AppConstants.productImages,
-      );
-      imageUrl.value = url;
+      var toUpload = await ImageCompressionUtil.compressImages(files);
+      if (toUpload.isEmpty) {
+        toUpload = files;
+      }
+      for (final file in toUpload) {
+        final url = await StorageService.instance.uploadImage(
+          file,
+          AppConstants.productImages,
+        );
+        imageUrls.add(url);
+      }
+      imageUrls.refresh();
     } catch (e, st) {
-      AppLogger.e('uploadImage failed', e, st);
+      AppLogger.e('uploadImages failed', e, st);
       Get.snackbar('Error', 'Failed to upload image');
     } finally {
       isSaving.value = false;
@@ -102,7 +119,8 @@ class AdminProductController extends GetxController {
           'price': price.value,
           'desc': desc.value,
           'category': category.value,
-          'imageUrl': imageUrl.value,
+          'imageUrl': imageUrls.isNotEmpty ? imageUrls.first : '',
+          'imageUrls': imageUrls,
           'isActive': isActive.value,
         });
       } else {
@@ -114,7 +132,8 @@ class AdminProductController extends GetxController {
           price: price.value,
           desc: desc.value,
           category: category.value,
-          imageUrl: imageUrl.value,
+          imageUrl: imageUrls.isNotEmpty ? imageUrls.first : '',
+          imageUrls: imageUrls,
           isActive: isActive.value,
         );
         await _repo.addProduct(shopId, product);

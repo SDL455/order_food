@@ -54,9 +54,9 @@ class ProductDetailScreen extends GetView<ProductDetailController> {
                 background: Stack(
                   fit: StackFit.expand,
                   children: [
-                    product.imageUrl.isNotEmpty
+                    product.displayImageUrl.isNotEmpty
                         ? CachedNetworkImage(
-                            imageUrl: product.imageUrl,
+                            imageUrl: product.displayImageUrl,
                             fit: BoxFit.cover,
                           )
                         : Container(
