@@ -62,9 +62,14 @@ service cloud.firestore {
       match /products/{productId} {
         // Anyone can read products (guest browsing)
         allow read: if true;
-        // Only the shop owner can CUD products
-        allow create, update, delete: if isLoggedIn() &&
+        // Only the shop owner can create/delete products
+        allow create, delete: if isLoggedIn() &&
           get(/databases/$(database)/documents/shops/$(shopId)).data.ownerUid == request.auth.uid;
+        // Shop owner: full update. Logged-in users: can update only avgRating & ratingCount (when submitting a rating)
+        allow update: if isLoggedIn() && (
+          get(/databases/$(database)/documents/shops/$(shopId)).data.ownerUid == request.auth.uid ||
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['avgRating', 'ratingCount'])
+        );
 
         // ── Ratings (subcollection of product) ──
         match /ratings/{ratingUid} {
