@@ -31,53 +31,50 @@ class SplashScreen extends GetView<AuthController> {
             children: [
               const Spacer(flex: 2),
               Container(
-                width: 140,
-                height: 140,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(35),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.2),
-                      blurRadius: 30,
-                      offset: const Offset(0, 15),
+                    width: 140,
+                    height: 140,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(35),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 30,
+                          offset: const Offset(0, 15),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.restaurant_menu,
-                  size: 70,
-                  color: AppTheme.primary,
-                ),
-              )
-                  .animate()
-                  .scale(
-                    duration: 600.ms,
-                    curve: Curves.elasticOut,
+                    child: const Icon(
+                      Icons.restaurant_menu,
+                      size: 70,
+                      color: AppTheme.primary,
+                    ),
                   )
+                  .animate()
+                  .scale(duration: 600.ms, curve: Curves.elasticOut)
                   .fadeIn(duration: 400.ms),
               const SizedBox(height: 32),
               Text(
-                'Order Food',
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  letterSpacing: 1.5,
-                ),
-              )
+                    'Order Food',
+                    style: TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 1.5,
+                    ),
+                  )
                   .animate()
                   .fadeIn(delay: 300.ms, duration: 500.ms)
                   .slideY(begin: 0.3, end: 0, curve: Curves.easeOut),
               const SizedBox(height: 12),
               Text(
-                'Delicious food, delivered fast',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white.withValues(alpha: 0.85),
-                  letterSpacing: 0.5,
-                ),
-              )
+                    'Delicious food, delivered fast',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white.withValues(alpha: 0.85),
+                      letterSpacing: 0.5,
+                    ),
+                  )
                   .animate()
                   .fadeIn(delay: 500.ms, duration: 500.ms)
                   .slideY(begin: 0.3, end: 0, curve: Curves.easeOut),
@@ -106,9 +103,7 @@ class SplashScreen extends GetView<AuthController> {
                     ),
                   ],
                 ),
-              )
-                  .animate()
-                  .fadeIn(delay: 800.ms, duration: 500.ms),
+              ).animate().fadeIn(delay: 800.ms, duration: 500.ms),
             ],
           ),
         ),

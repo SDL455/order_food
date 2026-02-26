@@ -33,13 +33,16 @@ class ShopSearchBar extends StatelessWidget {
         controller: controller,
         onChanged: onChanged,
         decoration: InputDecoration(
-          hintText: 'Search restaurants...',
+          hintText: 'Search shops or categories...',
           prefixIcon: const Icon(Icons.search, color: AppTheme.textSecondary),
           suffixIcon: ValueListenableBuilder<TextEditingValue>(
             valueListenable: controller,
             builder: (context, value, child) => value.text.isNotEmpty
                 ? IconButton(
-                    icon: const Icon(Icons.clear, color: AppTheme.textSecondary),
+                    icon: const Icon(
+                      Icons.clear,
+                      color: AppTheme.textSecondary,
+                    ),
                     onPressed: () {
                       controller.clear();
                       onChanged('');
@@ -58,7 +61,10 @@ class ShopSearchBar extends StatelessWidget {
           ),
           filled: true,
           fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 16,
+          ),
         ),
       ),
     );

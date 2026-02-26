@@ -6,6 +6,8 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/services/firebase_service.dart';
 import '../../../core/widgets/empty_state_widget.dart';
 import '../../../routes/app_routes.dart';
+import '../../shop/widgets/category_chip.dart';
+import '../../shop/widgets/product_grid_card.dart';
 import '../controller/home_controller.dart';
 import '../widgets/main_bottom_nav.dart';
 import '../widgets/shop_card.dart';
@@ -117,23 +119,101 @@ class ShopListScreen extends GetView<HomeController> {
                       .fadeIn(duration: 400.ms)
                       .slideY(begin: -0.1, end: 0),
                   const SizedBox(height: 20),
-                  Text(
-                    'Popular Restaurants',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary,
-                    ),
-                  ).animate().fadeIn(delay: 100.ms),
+                  Obx(
+                    () => Text(
+                      controller.shouldShowProducts
+                          ? 'Products'
+                          : 'Popular Restaurants',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ).animate().fadeIn(delay: 100.ms),
+                  ),
                 ],
               ),
             ),
           ),
 
+          Obx(() {
+            final cats = controller.filteredCategories;
+            if (controller.categories.isNotEmpty)
+              return SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 56,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
+                    children: [
+                      CategoryChip(
+                        label: 'All',
+                        isSelected: controller.selectedCategory.value.isEmpty,
+                        onTap: () => controller.selectedCategory.value = '',
+                      ),
+                      ...cats.map(
+                        (c) => CategoryChip(
+                          label: c,
+                          isSelected: controller.selectedCategory.value == c,
+                          onTap: () => controller.selectedCategory.value = c,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            return const SliverToBoxAdapter(child: SizedBox.shrink());
+          }),
+
           SliverToBoxAdapter(
             child: Obx(() {
               if (controller.isLoading.value) {
                 return _buildLoadingState();
+              }
+              final shouldShowProducts = controller.shouldShowProducts;
+              if (shouldShowProducts) {
+                final products = controller.filteredProducts;
+                if (products.isEmpty) {
+                  return EmptyStateWidget(
+                    icon: Icons.inventory_2_outlined,
+                    title: 'No products in this category',
+                    subtitle: 'Try another category or search',
+                  );
+                }
+                return Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
+                          childAspectRatio: 0.68,
+                        ),
+                    itemCount: products.length,
+                    itemBuilder: (_, i) {
+                      final product = products[i];
+                      return ProductGridCard(
+                            product: product,
+                            onTap: () => Get.toNamed(
+                              AppRoutes.productDetail,
+                              arguments: {
+                                'shopId': product.shopId,
+                                'productId': product.id,
+                              },
+                            ),
+                          )
+                          .animate(delay: (i * 50).ms)
+                          .fadeIn()
+                          .scale(begin: const Offset(0.95, 0.95));
+                    },
+                  ),
+                );
               }
               final shops = controller.filteredShops;
               if (shops.isEmpty) {
