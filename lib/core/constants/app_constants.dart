@@ -17,6 +17,7 @@ class AppConstants {
   static const String productImages = 'product_images';
   static const String shopImages = 'shop_images';
   static const String userImages = 'user_images';
+  static const String chatImages = 'chat_images';
 
   // ── Roles ──
   static const String roleCustomer = 'customer';

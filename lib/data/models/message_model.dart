@@ -7,6 +7,7 @@ class MessageModel {
   final String toUid;
   final String text;
   final String type; // 'text', 'image', etc.
+  final String imageUrl; // For type == 'image'
   final DateTime createdAt;
 
   MessageModel({
@@ -15,6 +16,7 @@ class MessageModel {
     required this.toUid,
     required this.text,
     this.type = 'text',
+    this.imageUrl = '',
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
@@ -25,15 +27,19 @@ class MessageModel {
       toUid: map['toUid'] ?? '',
       text: map['text'] ?? '',
       type: map['type'] ?? 'text',
+      imageUrl: map['imageUrl'] ?? '',
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 
   Map<String, dynamic> toMap() => {
-    'fromUid': fromUid,
-    'toUid': toUid,
-    'text': text,
-    'type': type,
-    'createdAt': FieldValue.serverTimestamp(),
-  };
+        'fromUid': fromUid,
+        'toUid': toUid,
+        'text': text,
+        'type': type,
+        if (imageUrl.isNotEmpty) 'imageUrl': imageUrl,
+        'createdAt': FieldValue.serverTimestamp(),
+      };
+
+  bool get isImage => type == 'image' && imageUrl.isNotEmpty;
 }

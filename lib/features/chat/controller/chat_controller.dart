@@ -1,6 +1,11 @@
-import 'package:get/get.dart';
+import 'dart:io';
 
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../../../core/constants/app_constants.dart';
 import '../../../core/services/firebase_service.dart';
+import '../../../core/services/storage_service.dart';
 import '../../../data/models/chat_model.dart';
 import '../../../data/models/message_model.dart';
 import '../../../data/models/shop_model.dart';
@@ -21,6 +26,9 @@ class ChatController extends GetxController {
   final shops = <ShopModel>[].obs;
   final isShopsLoading = false.obs;
   final searchQuery = ''.obs;
+
+  /// Uploading image state.
+  final isUploadingImage = false.obs;
 
   /// Currently selected chat.
   final Rxn<ChatModel> activeChat = Rxn<ChatModel>();
@@ -132,5 +140,55 @@ class ChatController extends GetxController {
 
     await _chatRepo.sendMessage(chatId: chat.id, message: message);
     messageText.value = '';
+  }
+
+  /// Send an image message. Picks image from gallery/camera and uploads.
+  Future<void> sendImageMessage(ImageSource source) async {
+    if (activeChat.value == null) return;
+
+    final picker = ImagePicker();
+    final xFile = await picker.pickImage(
+      source: source,
+      maxWidth: 1200,
+      imageQuality: 85,
+    );
+    if (xFile == null) return;
+
+    final chat = activeChat.value!;
+    String toUid;
+    if (FirebaseService.uid == chat.customerUid) {
+      final shop = await _shopRepo.getShop(chat.shopId);
+      toUid = shop?.ownerUid ?? '';
+    } else {
+      toUid = chat.customerUid;
+    }
+
+    isUploadingImage.value = true;
+    try {
+      final file = File(xFile.path);
+      final url = await StorageService.instance.uploadImage(
+        file,
+        AppConstants.chatImages,
+      );
+
+      final message = MessageModel(
+        id: '',
+        fromUid: FirebaseService.uid,
+        toUid: toUid,
+        text: '',
+        type: 'image',
+        imageUrl: url,
+      );
+
+      await _chatRepo.sendMessage(chatId: chat.id, message: message);
+    } catch (e) {
+      Get.snackbar(
+        'ບໍ່ສາມາດສົ່ງຮູບໄດ້',
+        'ກະລຸນາລອງໃໝ່ພາຍຫຼັງ',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isUploadingImage.value = false;
+    }
   }
 }

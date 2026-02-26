@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>ໃຊ້ຖ່າຍຮູບສົ່ງໃນແຊັດ</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>ໃຊ້ເລືອກຮູບຈາກກາລະລິສົ່ງໃນແຊັດ</string>
 </dict>
 </plist>
