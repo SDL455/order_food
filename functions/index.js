@@ -155,7 +155,15 @@ exports.onChatMessageCreated = onDocumentCreated(
     const chatId = event.params.chatId;
 
     const toUid = message.toUid;
+    const fromUid = message.fromUid;
+    
     if (!toUid) return;
+    
+    // ບໍ່ສົ່ງແຈ້ງເຕືອນໃຫ້ຕົນເອງ
+    if (toUid === fromUid) {
+      console.log("Skipping self-notification for message");
+      return;
+    }
 
     try {
       const receiverDoc = await db.collection("users").doc(toUid).get();
