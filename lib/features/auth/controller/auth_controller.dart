@@ -90,9 +90,17 @@ class AuthController extends GetxController {
 
   /// Logout and go to home as guest.
   Future<void> logout() async {
-    await _repo.logout();
-    currentUser.value = null;
-    Get.offAllNamed(AppRoutes.home);
+    try {
+      isLoading.value = true;
+      await _repo.logout();
+      currentUser.value = null;
+      Get.offAllNamed(AppRoutes.home);
+    } catch (e, st) {
+      AppLogger.e('logout failed', e, st);
+      Get.snackbar('Logout Failed', e.toString());
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   /// Redirect based on role.
