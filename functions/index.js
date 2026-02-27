@@ -45,7 +45,7 @@ exports.onOrderCreated = onDocumentCreated("orders/{orderId}", async (event) => 
     // Send notification
     const message = {
       notification: {
-        title: "🆕 New Order!",
+        title: " New Order!",
         body: `Order #${orderId.substring(0, 8)} — $${order.total.toFixed(2)}`,
       },
       data: {
@@ -99,11 +99,11 @@ exports.onOrderStatusChanged = onDocumentUpdated("orders/{orderId}", async (even
     if (tokens.length === 0) return;
 
     const statusMessages = {
-      accepted: "Your order has been accepted! 🎉",
-      cooking: "Your food is being prepared! 🍳",
-      delivering: "Your order is on the way! 🚗",
-      done: "Your order has been delivered! ✅",
-      canceled: "Your order has been canceled. ❌",
+      accepted: "Your order has been accepted! ",
+      cooking: "Your food is being prepared! ",
+      delivering: "Your order is on the way! ",
+      done: "Your order has been delivered! ",
+      canceled: "Your order has been canceled. ",
     };
 
     const body = statusMessages[afterData.status] || `Order status: ${afterData.status}`;
@@ -166,12 +166,12 @@ exports.onChatMessageCreated = onDocumentCreated(
 
       const isImage = message.type === "image" && message.imageUrl;
       const body = isImage
-        ? "📷 ຮູບພາບ"
+        ? "ຮູບພາບ"
         : (message.text || "").substring(0, 80);
 
       const msg = {
         notification: {
-          title: "💬 ຂໍ້ຄວາມໃໝ່",
+          title: "ຂໍ້ຄວາມໃໝ່",
           body: body || "ມີຂໍ້ຄວາມໃໝ່",
         },
         data: {
