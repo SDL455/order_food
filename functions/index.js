@@ -159,7 +159,8 @@ exports.onChatMessageCreated = onDocumentCreated(
     
     if (!toUid) return;
     
-    // ບໍ່ສົ່ງແຈ້ງເຕືອນໃຫ້ຕົນເອງ
+    // not send notification to yourself
+
     if (toUid === fromUid) {
       console.log("Skipping self-notification for message");
       return;
